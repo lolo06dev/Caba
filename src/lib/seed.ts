@@ -1,35 +1,50 @@
 import { db } from "@/db";
 import { categories, products } from "@/db/schema";
-import { sql } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 
-// Flag file check - we use a simple approach: check if any product has Caba Product in the name
-// If not, we need to reseed
 const img = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=80`;
 
-const cat = (name: string, slug: string, description: string, image: string) => ({
-  name,
-  slug,
-  description,
-  image,
-});
-
+// =====================
+// Store categories (Clothes / Shoes / Electronics)
+// =====================
 const categoriesData = [
-  cat("T-Shirts", "t-shirts", "Oversized and boxy fit t-shirts", img("photo-1576566588028-4147f3842f27")),
-  cat("Shorts", "shorts", "Premium streetwear shorts", img("photo-1591195853828-11db59a44f6b")),
-  cat("Full Sets", "sets", "Complete outfit sets", img("photo-1621072156002-e2fccdc0b176")),
-  cat("Accessories", "accessories", "Caps, bags, and accessories", img("photo-1556306535-0f09a537f0a3")),
+  {
+    name: "Clothes",
+    slug: "clothes",
+    description: "Apparel and clothing for every style",
+    image: img("photo-1576566588028-4147f3842f27"),
+  },
+  {
+    name: "Shoes",
+    slug: "shoes",
+    description: "Sneakers, boots and footwear",
+    image: img("photo-1549298916-b41d501d3772"),
+  },
+  {
+    name: "Electronics",
+    slug: "electronics",
+    description: "Phones, gadgets and electronic accessories",
+    image: img("photo-1498049794561-7780e7231661"),
+  },
 ];
 
+// Old demo categories from the original template — they are merged into
+// "clothes" and removed so the store only shows the 3 categories above.
+const legacySlugs = ["t-shirts", "shorts", "sets", "accessories"];
+
+// =====================
+// Demo products (seeded once on an empty database)
+// =====================
 const productData = [
-  // SUMMER 2026 Collection
   {
     name: "Caba Product BOXY T SHIRT",
     slug: "glitch-boxy-t-shirt",
-    description: "Oversized boxy fit t-shirt from the Summer 2026 collection. Premium cotton with clean aesthetics.",
+    description:
+      "Oversized boxy fit t-shirt from the Summer 2026 collection. Premium cotton with clean aesthetics.",
     price: 440000,
     oldPrice: null,
     image: img("photo-1576566588028-4147f3842f27"),
-    category: "t-shirts",
+    category: "clothes",
     brand: "SUMMER 2026",
     stock: 25,
     rating: 48,
@@ -41,11 +56,12 @@ const productData = [
   {
     name: "Caba Product FULL SET T-SHIRT SHORT",
     slug: "glitch-full-set-tshirt-short",
-    description: "Complete outfit set including oversized t-shirt and premium shorts. Summer 2026 collection.",
+    description:
+      "Complete outfit set including oversized t-shirt and premium shorts. Summer 2026 collection.",
     price: 780000,
     oldPrice: null,
     image: img("photo-1621072156002-e2fccdc0b176"),
-    category: "sets",
+    category: "clothes",
     brand: "SUMMER 2026",
     stock: 15,
     rating: 49,
@@ -57,11 +73,12 @@ const productData = [
   {
     name: "Caba Product SLEEVELESS TEE",
     slug: "glitch-sleeveless-tee",
-    description: "Sleeveless muscle tee with Caba Product branding. Perfect for summer vibes.",
+    description:
+      "Sleeveless muscle tee with Caba Product branding. Perfect for summer vibes.",
     price: 350000,
     oldPrice: null,
     image: img("photo-1583743814966-8936f5b7be1a"),
-    category: "t-shirts",
+    category: "clothes",
     brand: "SUMMER 2026",
     stock: 30,
     rating: 46,
@@ -73,11 +90,12 @@ const productData = [
   {
     name: "Caba Product CARGO SHORT BLACK",
     slug: "glitch-cargo-short-black",
-    description: "Premium black cargo shorts with multiple pockets. Streetwear essential.",
+    description:
+      "Premium black cargo shorts with multiple pockets. Streetwear essential.",
     price: 450000,
     oldPrice: null,
     image: img("photo-1591195853828-11db59a44f6b"),
-    category: "shorts",
+    category: "clothes",
     brand: "SUMMER 2026",
     stock: 20,
     rating: 47,
@@ -86,16 +104,15 @@ const productData = [
     isNew: 1,
     discount: 0,
   },
-
-  // DROP 2025 Collection
   {
     name: "Caba Product ARISE BLACK",
     slug: "glitch-arise-black",
-    description: "Arise collection black tee. Bold statement piece from Drop 2025.",
+    description:
+      "Arise collection black tee. Bold statement piece from Drop 2025.",
     price: 890000,
     oldPrice: null,
     image: img("photo-1618354691373-d851c5c3a990"),
-    category: "t-shirts",
+    category: "clothes",
     brand: "DROP 2025",
     stock: 0,
     rating: 49,
@@ -107,11 +124,12 @@ const productData = [
   {
     name: "Caba Product ARISE WHITE",
     slug: "glitch-arise-white",
-    description: "Arise collection white tee. Clean design with premium fabric from Drop 2025.",
+    description:
+      "Arise collection white tee. Clean design with premium fabric from Drop 2025.",
     price: 890000,
     oldPrice: null,
     image: img("photo-1521572163474-6864f9cf17ab"),
-    category: "t-shirts",
+    category: "clothes",
     brand: "DROP 2025",
     stock: 0,
     rating: 48,
@@ -120,16 +138,15 @@ const productData = [
     isNew: 0,
     discount: 0,
   },
-
-  // DROP 2024 Collection
   {
     name: "Caba Product BOXY FIT T SHIRT BLACK",
     slug: "glitch-boxy-fit-tshirt-black",
-    description: "Original boxy fit tee in black. Classic Caba Product design from Drop 2024.",
+    description:
+      "Original boxy fit tee in black. Classic Caba Product design from Drop 2024.",
     price: 290000,
     oldPrice: null,
     image: img("photo-1503342217505-b0a15ec3261c"),
-    category: "t-shirts",
+    category: "clothes",
     brand: "DROP 2024",
     stock: 0,
     rating: 47,
@@ -141,11 +158,12 @@ const productData = [
   {
     name: "Caba Product BOXY FIT T SHIRT WHITE",
     slug: "glitch-boxy-fit-tshirt-white",
-    description: "Original boxy fit tee in white. Clean Caba Product branding from Drop 2024.",
+    description:
+      "Original boxy fit tee in white. Clean Caba Product branding from Drop 2024.",
     price: 290000,
     oldPrice: null,
     image: img("photo-1622470953794-aa9c70b0fb9d"),
-    category: "t-shirts",
+    category: "clothes",
     brand: "DROP 2024",
     stock: 0,
     rating: 46,
@@ -156,29 +174,64 @@ const productData = [
   },
 ];
 
-export async function seedDatabase() {
-  // Skip if already seeded
-  const existing = await db.select().from(categories).limit(1);
-  if (existing.length > 0) return;
+async function migrateOrdersTable() {
+  // Add the new order columns (commune + online payment) to existing databases.
+  // Idempotent: safe to run on every boot.
+  await db.execute(sql`
+    ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "customer_commune" varchar(120)
+  `);
+  await db.execute(sql`
+    ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "payment_method" varchar(20) NOT NULL DEFAULT 'cod'
+  `);
+  await db.execute(sql`
+    ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "payment_status" varchar(20) NOT NULL DEFAULT 'unpaid'
+  `);
+  await db.execute(sql`
+    ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "chargily_checkout_id" varchar(120)
+  `);
+}
 
-  // Insert categories and capture id map
-  const catMap = new Map<string, number>();
+async function migrateCategories() {
+  // 1. Always make sure the 3 store categories exist (idempotent).
   for (const c of categoriesData) {
-    const [inserted] = await db
+    await db
       .insert(categories)
-      .values({
-        name: c.name,
-        slug: c.slug,
-        description: c.description,
-        image: c.image,
-      })
-      .returning();
-    if (inserted) catMap.set(c.slug, inserted.id);
+      .values(c)
+      .onConflictDoNothing({ target: categories.slug });
   }
 
-  // Insert products
+  // 2. Merge the old template categories into "clothes" and remove them,
+  //    so only Clothes / Shoes / Electronics are shown in the store & dashboard.
+  const legacy = await db
+    .select()
+    .from(categories)
+    .where(inArray(categories.slug, legacySlugs));
+  if (legacy.length > 0) {
+    const [clothes] = await db
+      .select()
+      .from(categories)
+      .where(eq(categories.slug, "clothes"))
+      .limit(1);
+    if (clothes) {
+      const legacyIds = legacy.map((l) => l.id);
+      await db
+        .update(products)
+        .set({ categoryId: clothes.id })
+        .where(inArray(products.categoryId, legacyIds));
+      await db.delete(categories).where(inArray(categories.id, legacyIds));
+    }
+  }
+}
+
+async function seedDemoProducts() {
+  // Only seed demo products on a completely empty products table.
+  const existing = await db.select().from(products).limit(1);
+  if (existing.length > 0) return;
+
+  const catRows = await db.select().from(categories);
+  const catMap = new Map(catRows.map((c) => [c.slug, c.id]));
+
   for (const p of productData) {
-    const categoryId = catMap.get(p.category) ?? null;
     await db.insert(products).values({
       name: p.name,
       slug: p.slug,
@@ -187,7 +240,7 @@ export async function seedDatabase() {
       oldPrice: p.oldPrice,
       image: p.image,
       images: [p.image],
-      categoryId,
+      categoryId: catMap.get(p.category) ?? null,
       brand: p.brand,
       stock: p.stock,
       rating: p.rating,
@@ -197,4 +250,10 @@ export async function seedDatabase() {
       discount: p.discount,
     });
   }
+}
+
+export async function seedDatabase() {
+  await migrateOrdersTable();
+  await migrateCategories();
+  await seedDemoProducts();
 }

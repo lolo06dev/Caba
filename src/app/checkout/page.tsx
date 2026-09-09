@@ -1,39 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart-store";
 import { formatPrice as fmt } from "@/lib/types";
-
-const WILAYAS = [
-  "Adrar",
-  "Algiers",
-  "Annaba",
-  "Batna",
-  "Bejaia",
-  "Biskra",
-  "Blida",
-  "Bouira",
-  "Chlef",
-  "Constantine",
-  "Djelfa",
-  "El Oued",
-  "Ghardaia",
-  "Jijel",
-  "Laghouat",
-  "Mascara",
-  "Medea",
-  "Mostaganem",
-  "Oran",
-  "Ouargla",
-  "Setif",
-  "Sidi Bel Abbes",
-  "Skikda",
-  "Tiaret",
-  "Tizi Ouzou",
-  "Tlemcen",
-];
+import { WILAYAS, getWilayaName, getCommunes } from "@/lib/algeria";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -42,12 +14,20 @@ export default function CheckoutPage() {
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => setHydrated(true), []);
 
+  const [chargilyEnabled, setChargilyEnabled] = useState(false);
+  useEffect(() => {
+    fetch("/api/payment-config")
+      .then((r) => r.json())
+      .then((d) => setChargilyEnabled(!!d.chargilyEnabled))
+      .catch(() => setChargilyEnabled(false));
+  }, []);
+
   const [form, setForm] = useState({
     name: "",
     phone: "",
-    email: "",
     address: "",
-    city: "",
+    wilaya: "", // wilaya code (1..58) as string
+    commune: "",
     notes: "",
     payment: "cod",
   });
@@ -58,13 +38,22 @@ export default function CheckoutPage() {
   const shipping = items.length === 0 ? 0 : subtotal > 50000 ? 0 : 5000;
   const total = subtotal + shipping;
 
+  const wilayaCode = Number(form.wilaya);
+  const communes = useMemo(
+    () => (form.wilaya ? getCommunes(Number(form.wilaya)) : []),
+    [form.wilaya]
+  );
+
   const onChange = (k: keyof typeof form, v: string) =>
     setForm((f) => ({ ...f, [k]: v }));
+
+  const onWilayaChange = (code: string) =>
+    setForm((f) => ({ ...f, wilaya: code, commune: "" }));
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!form.name || !form.phone || !form.address || !form.city) {
+    if (!form.name || !form.phone || !form.address || !form.wilaya || !form.commune) {
       setError("Please fill in all required fields");
       return;
     }
@@ -81,11 +70,12 @@ export default function CheckoutPage() {
           customer: {
             name: form.name,
             phone: form.phone,
-            email: form.email || undefined,
             address: form.address,
-            city: form.city,
+            city: getWilayaName(Number(form.wilaya)),
+            commune: form.commune,
           },
           notes: form.notes || undefined,
+          paymentMethod: form.payment,
           items: items.map((i) => ({
             productId: i.productId,
             name: i.name,
@@ -99,6 +89,15 @@ export default function CheckoutPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to create the order");
       clear();
+      if (data.paymentUrl) {
+        // Redirect to the Chargily payment page
+        window.location.href = data.paymentUrl as string;
+        return;
+      }
+      if (form.payment === "chargily") {
+        router.push(`/order/${data.order.id}?payment=error`);
+        return;
+      }
       router.push(`/order/${data.order.id}`);
     } catch (err: any) {
       setError(err.message || "Something went wrong");
@@ -170,19 +169,10 @@ export default function CheckoutPage() {
                   type="tel"
                   value={form.phone}
                   onChange={(e) => onChange("phone", e.target.value)}
+                  placeholder="05 / 06 / 07..."
+                  dir="ltr"
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white"
                   required
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-semibold mb-1.5">
-                  Email address (optional)
-                </label>
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => onChange("email", e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white"
                 />
               </div>
             </div>
@@ -202,13 +192,36 @@ export default function CheckoutPage() {
                   Wilaya <span className="text-red-500">*</span>
                 </label>
                 <select
-                  value={form.city}
-                  onChange={(e) => onChange("city", e.target.value)}
+                  value={form.wilaya}
+                  onChange={(e) => onWilayaChange(e.target.value)}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white"
                   required
                 >
-                  <option value="">Select a wilaya</option>
-                  {WILAYAS.map((c) => (
+                  <option value="">Select a wilaya (58)</option>
+                  {WILAYAS.map((w) => (
+                    <option key={w.code} value={String(w.code)}>
+                      {String(w.code).padStart(2, "0")} - {w.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold mb-1.5">
+                  Commune <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={form.commune}
+                  onChange={(e) => onChange("commune", e.target.value)}
+                  disabled={!form.wilaya}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                  required
+                >
+                  <option value="">
+                    {form.wilaya
+                      ? "Select a commune"
+                      : "Select a wilaya first"}
+                  </option>
+                  {communes.map((c) => (
                     <option key={c} value={c}>
                       {c}
                     </option>
@@ -253,8 +266,20 @@ export default function CheckoutPage() {
             </h2>
             <div className="space-y-2">
               {[
-                { v: "cod", t: "Cash on delivery", d: "Pay in cash when your order arrives" },
-                { v: "card", t: "Credit card", d: "Secure online payment" },
+                {
+                  v: "cod",
+                  t: "Cash on delivery",
+                  d: "Pay in cash when your order arrives",
+                },
+                ...(chargilyEnabled
+                  ? [
+                      {
+                        v: "chargily",
+                        t: "Online payment (EDAHABIA / CIB)",
+                        d: "Pay securely with your Algerian card via Chargily",
+                      },
+                    ]
+                  : []),
               ].map((m) => (
                 <label
                   key={m.v}
@@ -344,7 +369,11 @@ export default function CheckoutPage() {
                   Submitting...
                 </>
               ) : (
-                <>Confirm order ({fmt(total)})</>
+                <>
+                  {form.payment === "chargily"
+                    ? `Pay now (${fmt(total)})`
+                    : `Confirm order (${fmt(total)})`}
+                </>
               )}
             </button>
             <p className="text-xs text-slate-500 text-center mt-3">

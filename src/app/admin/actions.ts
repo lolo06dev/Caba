@@ -1,7 +1,8 @@
 "use server";
 
 import { db } from "@/db";
-import { products } from "@/db/schema";
+import { products, categories } from "@/db/schema";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -26,12 +27,27 @@ export async function addProduct(formData: FormData): Promise<AddProductResult> 
   const description = formData.get("description")?.toString();
   const price = Number(formData.get("price"));
   const stock = Number(formData.get("stock"));
+  const categoryId = Number(formData.get("categoryId"));
   const files = formData
     .getAll("images")
     .filter((entry): entry is File => entry instanceof File && entry.size > 0);
 
   if (!name || isNaN(price) || isNaN(stock) || files.length === 0) {
     return { success: false, error: "Missing required fields" };
+  }
+
+  // The product must be added to one of the existing categories
+  // (Clothes / Shoes / Electronics).
+  if (!Number.isInteger(categoryId) || categoryId <= 0) {
+    return { success: false, error: "Please choose a category for the product" };
+  }
+  const [category] = await db
+    .select()
+    .from(categories)
+    .where(eq(categories.id, categoryId))
+    .limit(1);
+  if (!category) {
+    return { success: false, error: "The selected category does not exist" };
   }
 
   if (files.length > MAX_IMAGES) {
@@ -77,6 +93,7 @@ export async function addProduct(formData: FormData): Promise<AddProductResult> 
       stock,
       image: urls[0],
       images: urls,
+      categoryId: category.id,
     });
   } catch (error) {
     console.error("Product insert failed", error);
@@ -86,6 +103,7 @@ export async function addProduct(formData: FormData): Promise<AddProductResult> 
 
   revalidatePath("/");
   revalidatePath("/products");
+  revalidatePath(`/category/${category.slug}`);
 
   return { success: true };
 }

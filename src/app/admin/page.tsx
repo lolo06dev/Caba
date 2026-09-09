@@ -1,12 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { addProduct, signOut } from "./actions";
+
+type Category = {
+  id: number;
+  name: string;
+  slug: string;
+};
 
 export default function AdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [previews, setPreviews] = useState<string[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesError, setCategoriesError] = useState("");
+
+  // Load the store categories (Clothes / Shoes / Electronics)
+  useEffect(() => {
+    fetch("/api/categories")
+      .then((res) => res.json())
+      .then((data) => setCategories(data.categories ?? []))
+      .catch(() => setCategoriesError("Failed to load categories, please refresh the page."));
+  }, []);
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files ?? []);
@@ -96,23 +112,50 @@ export default function AdminDashboard() {
 
         <div>
           <label style={{ display: "block", marginBottom: "5px", fontWeight: 500 }}>Description:</label>
-          <textarea 
-            name="description" 
+          <textarea
+            name="description"
             required
-            rows={4} 
-            style={{ width: "100%", padding: "10px", border: "1px solid #ccc", borderRadius: "4px" }} 
+            rows={4}
+            style={{ width: "100%", padding: "10px", border: "1px solid #ccc", borderRadius: "4px" }}
             placeholder="Detailed product description"
           ></textarea>
         </div>
 
         <div>
+          <label style={{ display: "block", marginBottom: "5px", fontWeight: 500 }}>Category:</label>
+          <select
+            name="categoryId"
+            required
+            defaultValue=""
+            style={{ width: "100%", padding: "10px", border: "1px solid #ccc", borderRadius: "4px" }}
+          >
+            <option value="" disabled>
+              Choose a category...
+            </option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+          <small style={{ color: "#666", display: "block", marginTop: "5px" }}>
+            The product will be displayed in the selected category page.
+          </small>
+          {categoriesError && (
+            <small style={{ color: "#c0392b", display: "block", marginTop: "5px" }}>
+              {categoriesError}
+            </small>
+          )}
+        </div>
+
+        <div>
           <label style={{ display: "block", marginBottom: "5px", fontWeight: 500 }}>Quantity (stock):</label>
-          <input 
-            type="number" 
-            name="stock" 
-            required 
+          <input
+            type="number"
+            name="stock"
+            required
             min="0"
-            style={{ width: "100%", padding: "10px", border: "1px solid #ccc", borderRadius: "4px" }} 
+            style={{ width: "100%", padding: "10px", border: "1px solid #ccc", borderRadius: "4px" }}
             placeholder="e.g. 15"
           />
         </div>

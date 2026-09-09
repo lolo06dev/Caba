@@ -96,17 +96,14 @@ const Header = () => {
           <Link href="/products" onClick={() => setMenuOpen(false)}>
             All Products
           </Link>
-          <Link href="/category/t-shirts" onClick={() => setMenuOpen(false)}>
-            T-Shirts
+          <Link href="/category/clothes" onClick={() => setMenuOpen(false)}>
+            Clothes
           </Link>
-          <Link href="/category/shorts" onClick={() => setMenuOpen(false)}>
-            Shorts
+          <Link href="/category/shoes" onClick={() => setMenuOpen(false)}>
+            Shoes
           </Link>
-          <Link href="/category/sets" onClick={() => setMenuOpen(false)}>
-            Full Sets
-          </Link>
-          <Link href="/category/accessories" onClick={() => setMenuOpen(false)}>
-            Accessories
+          <Link href="/category/electronics" onClick={() => setMenuOpen(false)}>
+            Electronics
           </Link>
         </nav>
       </div>

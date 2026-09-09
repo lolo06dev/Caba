@@ -107,7 +107,7 @@ export default async function HomePage() {
               </div>
             </div>
             <div className="service-info">
-              <h4>Paiement A La Livraison et en ligne</h4>
+              <h4>Paiement A La Livraison & En Ligne</h4>
               <p>Payer A La Livraison ou en ligne</p>
             </div>
           </div>

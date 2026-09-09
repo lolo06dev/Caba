@@ -107,7 +107,7 @@ export default async function HomePage() {
               </div>
             </div>
             <div className="service-info">
-              <h4>Cash on delivery and online payment</h4>
+              <h4>Cash On Delivery &amp; Online Payment</h4>
               <p>Pay on delivery or online</p>
             </div>
           </div>

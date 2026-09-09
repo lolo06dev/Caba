@@ -14,7 +14,7 @@ const AddToCartButton = ({ product }: { product: Product }) => {
         <button
           onClick={() => setQty((q) => Math.max(1, q - 1))}
           className="w-11 h-11 hover:bg-slate-200 font-bold text-lg"
-          aria-label="إنقاص"
+          aria-label="Decrease quantity"
         >
           −
         </button>
@@ -22,7 +22,7 @@ const AddToCartButton = ({ product }: { product: Product }) => {
         <button
           onClick={() => setQty((q) => Math.min(product.stock, q + 1))}
           className="w-11 h-11 hover:bg-slate-200 font-bold text-lg"
-          aria-label="زيادة"
+          aria-label="Increase quantity"
         >
           +
         </button>
@@ -41,9 +41,7 @@ const AddToCartButton = ({ product }: { product: Product }) => {
         disabled={product.stock === 0}
         className="btn btn-primary flex-1 text-base"
       >
-        {product.stock === 0
-          ? "غير متوفر"
-          : "🛒 أضف إلى السلة"}
+        {product.stock === 0 ? "Out of stock" : "🛒 Add to cart"}
       </button>
     </div>
   );

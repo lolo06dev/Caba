@@ -4,10 +4,36 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart-store";
+import { formatPrice as fmt } from "@/lib/types";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("ar-EG", { minimumFractionDigits: 0 }).format(n / 100) +
-  " ج.م";
+const WILAYAS = [
+  "Adrar",
+  "Algiers",
+  "Annaba",
+  "Batna",
+  "Bejaia",
+  "Biskra",
+  "Blida",
+  "Bouira",
+  "Chlef",
+  "Constantine",
+  "Djelfa",
+  "El Oued",
+  "Ghardaia",
+  "Jijel",
+  "Laghouat",
+  "Mascara",
+  "Medea",
+  "Mostaganem",
+  "Oran",
+  "Ouargla",
+  "Setif",
+  "Sidi Bel Abbes",
+  "Skikda",
+  "Tiaret",
+  "Tizi Ouzou",
+  "Tlemcen",
+];
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -39,11 +65,11 @@ export default function CheckoutPage() {
     e.preventDefault();
     setError("");
     if (!form.name || !form.phone || !form.address || !form.city) {
-      setError("من فضلك أكمل جميع البيانات المطلوبة");
+      setError("Please fill in all required fields");
       return;
     }
     if (items.length === 0) {
-      setError("السلة فارغة");
+      setError("Your cart is empty");
       return;
     }
     setSubmitting(true);
@@ -71,11 +97,11 @@ export default function CheckoutPage() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "فشل إنشاء الطلب");
+      if (!res.ok) throw new Error(data.error || "Failed to create the order");
       clear();
       router.push(`/order/${data.order.id}`);
     } catch (err: any) {
-      setError(err.message || "حدث خطأ");
+      setError(err.message || "Something went wrong");
       setSubmitting(false);
     }
   };
@@ -93,10 +119,10 @@ export default function CheckoutPage() {
       <div className="container mx-auto px-4 py-16 text-center">
         <div className="bg-white rounded-2xl p-10 border border-slate-200 max-w-md mx-auto">
           <div className="text-6xl mb-3">🛒</div>
-          <h2 className="text-2xl font-extrabold mb-2">السلة فارغة</h2>
-          <p className="text-slate-500 mb-5">أضف منتجات أولاً قبل إتمام الطلب</p>
+          <h2 className="text-2xl font-extrabold mb-2">Your cart is empty</h2>
+          <p className="text-slate-500 mb-5">Add some products before checking out</p>
           <Link href="/products" className="btn btn-primary">
-            تصفح المنتجات
+            Browse products
           </Link>
         </div>
       </div>
@@ -106,12 +132,12 @@ export default function CheckoutPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center gap-2 text-sm text-slate-500 mb-6">
-        <Link href="/" className="hover:text-amber-600">الرئيسية</Link>
+        <Link href="/" className="hover:text-amber-600">Home</Link>
         <span>/</span>
-        <span className="text-slate-900 font-semibold">إتمام الطلب</span>
+        <span className="text-slate-900 font-semibold">Checkout</span>
       </div>
 
-      <h1 className="text-3xl md:text-4xl font-extrabold mb-8">إتمام الطلب</h1>
+      <h1 className="text-3xl md:text-4xl font-extrabold mb-8">Checkout</h1>
 
       <form onSubmit={onSubmit} className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
@@ -121,12 +147,12 @@ export default function CheckoutPage() {
               <span className="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-sm">
                 1
               </span>
-              بيانات العميل
+              Customer details
             </h2>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold mb-1.5">
-                  الاسم الكامل <span className="text-red-500">*</span>
+                  Full name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -138,7 +164,7 @@ export default function CheckoutPage() {
               </div>
               <div>
                 <label className="block text-sm font-semibold mb-1.5">
-                  رقم الهاتف <span className="text-red-500">*</span>
+                  Phone number <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="tel"
@@ -150,7 +176,7 @@ export default function CheckoutPage() {
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-semibold mb-1.5">
-                  البريد الإلكتروني (اختياري)
+                  Email address (optional)
                 </label>
                 <input
                   type="email"
@@ -168,12 +194,12 @@ export default function CheckoutPage() {
               <span className="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-sm">
                 2
               </span>
-              عنوان التوصيل
+              Delivery address
             </h2>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold mb-1.5">
-                  المحافظة <span className="text-red-500">*</span>
+                  Wilaya <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={form.city}
@@ -181,34 +207,8 @@ export default function CheckoutPage() {
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white"
                   required
                 >
-                  <option value="">اختر المحافظة</option>
-                  {[
-                    "القاهرة",
-                    "الجيزة",
-                    "الإسكندرية",
-                    "المنصورة",
-                    "أسيوط",
-                    "الأقصر",
-                    "أسوان",
-                    "بورسعيد",
-                    "السويس",
-                    "الإسماعيلية",
-                    "الفيوم",
-                    "البحيرة",
-                    "الدقهلية",
-                    "الشرقية",
-                    "المنوفية",
-                    "القليوبية",
-                    "البحر الأحمر",
-                    "الوادي الجديد",
-                    "مطروح",
-                    "شمال سيناء",
-                    "جنوب سيناء",
-                    "دمياط",
-                    "كفر الشيخ",
-                    "سوهاج",
-                    "قنا",
-                  ].map((c) => (
+                  <option value="">Select a wilaya</option>
+                  {WILAYAS.map((c) => (
                     <option key={c} value={c}>
                       {c}
                     </option>
@@ -217,26 +217,26 @@ export default function CheckoutPage() {
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-semibold mb-1.5">
-                  العنوان بالتفصيل <span className="text-red-500">*</span>
+                  Full address <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={form.address}
                   onChange={(e) => onChange("address", e.target.value)}
-                  placeholder="الشارع، رقم المبنى، علامة مميزة..."
+                  placeholder="Street, building number, landmark..."
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white"
                   required
                 />
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-semibold mb-1.5">
-                  ملاحظات (اختياري)
+                  Notes (optional)
                 </label>
                 <textarea
                   value={form.notes}
                   onChange={(e) => onChange("notes", e.target.value)}
                   rows={3}
-                  placeholder="أي ملاحظات إضافية على الطلب..."
+                  placeholder="Any additional notes about your order..."
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white"
                 />
               </div>
@@ -249,12 +249,12 @@ export default function CheckoutPage() {
               <span className="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-sm">
                 3
               </span>
-              طريقة الدفع
+              Payment method
             </h2>
             <div className="space-y-2">
               {[
-                { v: "cod", t: "الدفع عند الاستلام", d: "ادفع نقداً عند استلام الطلب" },
-                { v: "card", t: "بطاقة ائتمانية", d: "دفع آمن عبر الإنترنت" },
+                { v: "cod", t: "Cash on delivery", d: "Pay in cash when your order arrives" },
+                { v: "card", t: "Credit card", d: "Secure online payment" },
               ].map((m) => (
                 <label
                   key={m.v}
@@ -285,7 +285,7 @@ export default function CheckoutPage() {
         {/* Summary */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-2xl p-6 border border-slate-200 sticky top-32">
-            <h2 className="text-xl font-bold mb-4">ملخص الطلب</h2>
+            <h2 className="text-xl font-bold mb-4">Order summary</h2>
             <div className="space-y-3 max-h-80 overflow-y-auto mb-4">
               {items.map((it) => (
                 <div key={it.productId} className="flex gap-3 text-sm">
@@ -308,21 +308,21 @@ export default function CheckoutPage() {
 
             <div className="border-t border-slate-200 pt-3 space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-slate-600">المجموع الفرعي</span>
+                <span className="text-slate-600">Subtotal</span>
                 <span className="font-semibold">{fmt(subtotal)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600">الشحن</span>
+                <span className="text-slate-600">Shipping</span>
                 <span className="font-semibold">
                   {shipping === 0 ? (
-                    <span className="text-emerald-600">مجاني</span>
+                    <span className="text-emerald-600">Free</span>
                   ) : (
                     fmt(shipping)
                   )}
                 </span>
               </div>
               <div className="flex justify-between text-lg font-bold pt-2 border-t border-slate-200">
-                <span>الإجمالي</span>
+                <span>Total</span>
                 <span className="text-amber-600">{fmt(total)}</span>
               </div>
             </div>
@@ -341,14 +341,14 @@ export default function CheckoutPage() {
               {submitting ? (
                 <>
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  جاري الإرسال...
+                  Submitting...
                 </>
               ) : (
-                <>تأكيد الطلب ({fmt(total)})</>
+                <>Confirm order ({fmt(total)})</>
               )}
             </button>
             <p className="text-xs text-slate-500 text-center mt-3">
-              بالنقر على "تأكيد الطلب" فأنت توافق على شروط الاستخدام
+              By clicking &quot;Confirm order&quot; you agree to the terms of use
             </p>
           </div>
         </div>

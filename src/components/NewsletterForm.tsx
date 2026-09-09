@@ -22,11 +22,11 @@ const NewsletterForm = () => {
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        placeholder="بريدك الإلكتروني"
+        placeholder="Your email address"
         className="flex-1 bg-slate-800 border border-slate-700 rounded-xl py-3 px-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
       />
       <button type="submit" className="btn btn-primary">
-        {submitted ? "✓ تم الاشتراك" : "اشترك"}
+        {submitted ? "✓ Subscribed" : "Subscribe"}
       </button>
     </form>
   );

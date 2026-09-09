@@ -14,14 +14,14 @@ export async function POST(request: Request) {
       !customer.city
     ) {
       return NextResponse.json(
-        { error: "بيانات العميل غير مكتملة" },
+        { error: "Customer details are incomplete" },
         { status: 400 }
       );
     }
 
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
-        { error: "السلة فارغة" },
+        { error: "Your cart is empty" },
         { status: 400 }
       );
     }
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
   } catch (e) {
     console.error("Order error", e);
     return NextResponse.json(
-      { error: "فشل إنشاء الطلب" },
+      { error: "Failed to create the order" },
       { status: 500 }
     );
   }

@@ -66,10 +66,10 @@ export type Order = {
 export function formatPrice(value: number): string {
   // value is stored in centimes, divide by 100 for currency
   const num = value / 100;
-  return new Intl.NumberFormat("fr-DZ", {
+  return new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(num) + " د.ج";
+  }).format(num) + " DA";
 }
 
 export function calcDiscount(oldPrice: number | null, price: number): number {

@@ -16,10 +16,10 @@ export default function AdminDashboard() {
 
     try {
       await addProduct(formData);
-      setMessage("تمت إضافة المنتج بنجاح!");
+      setMessage("Product added successfully!");
       (event.target as HTMLFormElement).reset();
     } catch (error: any) {
-      setMessage("حدث خطأ: " + (error.message || "فشل الإضافة"));
+      setMessage("Error: " + (error.message || "Failed to add the product"));
     } finally {
       setLoading(false);
     }
@@ -27,14 +27,14 @@ export default function AdminDashboard() {
 
   return (
     <div style={{ maxWidth: "600px", margin: "40px auto", padding: "20px" }}>
-      <h1 style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "20px" }}>لوحة تحكم المنتجات</h1>
+      <h1 style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "20px" }}>Product dashboard</h1>
       
       {message && (
         <div style={{ 
           padding: "10px", 
           marginBottom: "20px", 
-          backgroundColor: message.includes("بنجاح") ? "#d4edda" : "#f8d7da",
-          color: message.includes("بنجاح") ? "#155724" : "#721c24",
+          backgroundColor: message.includes("successfully") ? "#d4edda" : "#f8d7da",
+          color: message.includes("successfully") ? "#155724" : "#721c24",
           borderRadius: "4px" 
         }}>
           {message}
@@ -44,53 +44,53 @@ export default function AdminDashboard() {
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
         
         <div>
-          <label style={{ display: "block", marginBottom: "5px", fontWeight: 500 }}>اسم المنتج:</label>
+          <label style={{ display: "block", marginBottom: "5px", fontWeight: 500 }}>Product name:</label>
           <input 
             type="text" 
             name="name" 
             required 
             style={{ width: "100%", padding: "10px", border: "1px solid #ccc", borderRadius: "4px" }} 
-            placeholder="مثال: Caba Product T-Shirt"
+            placeholder="e.g. Caba Product T-Shirt"
           />
         </div>
 
         <div>
-          <label style={{ display: "block", marginBottom: "5px", fontWeight: 500 }}>السعر (بالدينار):</label>
+          <label style={{ display: "block", marginBottom: "5px", fontWeight: 500 }}>Price (in centimes):</label>
           <input 
             type="number" 
             name="price" 
             required 
             min="0"
             style={{ width: "100%", padding: "10px", border: "1px solid #ccc", borderRadius: "4px" }} 
-            placeholder="مثال: 450000"
+            placeholder="e.g. 450000"
           />
         </div>
 
         <div>
-          <label style={{ display: "block", marginBottom: "5px", fontWeight: 500 }}>الوصف:</label>
+          <label style={{ display: "block", marginBottom: "5px", fontWeight: 500 }}>Description:</label>
           <textarea 
             name="description" 
             required
             rows={4} 
             style={{ width: "100%", padding: "10px", border: "1px solid #ccc", borderRadius: "4px" }} 
-            placeholder="وصف تفصيلي للمنتج"
+            placeholder="Detailed product description"
           ></textarea>
         </div>
 
         <div>
-          <label style={{ display: "block", marginBottom: "5px", fontWeight: 500 }}>الكمية (المخزون):</label>
+          <label style={{ display: "block", marginBottom: "5px", fontWeight: 500 }}>Quantity (stock):</label>
           <input 
             type="number" 
             name="stock" 
             required 
             min="0"
             style={{ width: "100%", padding: "10px", border: "1px solid #ccc", borderRadius: "4px" }} 
-            placeholder="مثال: 15"
+            placeholder="e.g. 15"
           />
         </div>
 
         <div>
-          <label style={{ display: "block", marginBottom: "5px", fontWeight: 500 }}>رابط الصورة (URL):</label>
+          <label style={{ display: "block", marginBottom: "5px", fontWeight: 500 }}>Image URL:</label>
           <input 
             type="url" 
             name="image" 
@@ -99,7 +99,7 @@ export default function AdminDashboard() {
             placeholder="https://images.unsplash.com/photo-..."
           />
           <small style={{ color: "#666", display: "block", marginTop: "5px" }}>
-            ضع رابط صورة مباشرة للمنتج هنا.
+            Paste a direct image link for the product here.
           </small>
         </div>
 
@@ -116,7 +116,7 @@ export default function AdminDashboard() {
             cursor: loading ? "not-allowed" : "pointer" 
           }}
         >
-          {loading ? "جاري الإضافة..." : "إضافة المنتج"}
+          {loading ? "Adding..." : "Add product"}
         </button>
       </form>
     </div>

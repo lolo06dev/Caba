@@ -6,11 +6,11 @@ import { formatPrice } from "@/lib/types";
 export const dynamic = "force-dynamic";
 
 const statusLabel: Record<string, string> = {
-  pending: "قيد المراجعة",
-  processing: "قيد التجهيز",
-  shipped: "تم الشحن",
-  delivered: "تم التوصيل",
-  cancelled: "ملغي",
+  pending: "Pending review",
+  processing: "Processing",
+  shipped: "Shipped",
+  delivered: "Delivered",
+  cancelled: "Cancelled",
 };
 
 const statusColor: Record<string, string> = {
@@ -54,13 +54,13 @@ export default async function OrderSuccessPage({
               <path d="M20 6 9 17l-5-5" />
             </svg>
           </div>
-          <h1 className="text-3xl font-extrabold mb-2">تم تأكيد طلبك بنجاح!</h1>
+          <h1 className="text-3xl font-extrabold mb-2">Your order is confirmed!</h1>
           <p className="text-slate-600 mb-2">
-            شكراً لك، {order.customerName}. تم استلام طلبك وسنقوم بمعالجته في
-            أقرب وقت.
+            Thank you, {order.customerName}. We have received your order and will
+            process it as soon as possible.
           </p>
           <p className="text-sm text-slate-500 mb-6">
-            رقم الطلب: <span className="font-bold text-slate-900">#{order.id}</span>
+            Order number: <span className="font-bold text-slate-900">#{order.id}</span>
           </p>
 
           <div className="inline-block">
@@ -76,7 +76,7 @@ export default async function OrderSuccessPage({
 
         {/* Order details */}
         <div className="bg-white rounded-3xl p-6 border border-slate-200 mt-6">
-          <h2 className="text-xl font-bold mb-4">تفاصيل الطلب</h2>
+          <h2 className="text-xl font-bold mb-4">Order details</h2>
 
           <div className="space-y-3 mb-5">
             {items.map((it) => (
@@ -107,17 +107,17 @@ export default async function OrderSuccessPage({
 
           <div className="space-y-2 text-sm border-t border-slate-200 pt-3">
             <div className="flex justify-between">
-              <span className="text-slate-600">المجموع الفرعي</span>
+              <span className="text-slate-600">Subtotal</span>
               <span className="font-semibold">{formatPrice(order.subtotal)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-600">الشحن</span>
+              <span className="text-slate-600">Shipping</span>
               <span className="font-semibold">
-                {order.shipping === 0 ? "مجاني" : formatPrice(order.shipping)}
+                {order.shipping === 0 ? "Free" : formatPrice(order.shipping)}
               </span>
             </div>
             <div className="flex justify-between text-lg font-bold pt-2 border-t border-slate-200">
-              <span>الإجمالي</span>
+              <span>Total</span>
               <span className="text-amber-600">{formatPrice(order.total)}</span>
             </div>
           </div>
@@ -125,22 +125,22 @@ export default async function OrderSuccessPage({
 
         {/* Customer info */}
         <div className="bg-white rounded-3xl p-6 border border-slate-200 mt-6">
-          <h2 className="text-xl font-bold mb-4">عنوان التوصيل</h2>
+          <h2 className="text-xl font-bold mb-4">Delivery address</h2>
           <div className="space-y-2 text-sm">
             <div>
-              <span className="text-slate-500">الاسم: </span>
+              <span className="text-slate-500">Name: </span>
               <span className="font-semibold">{order.customerName}</span>
             </div>
             <div>
-              <span className="text-slate-500">الهاتف: </span>
+              <span className="text-slate-500">Phone: </span>
               <span className="font-semibold" dir="ltr">{order.customerPhone}</span>
             </div>
             <div>
-              <span className="text-slate-500">المحافظة: </span>
+              <span className="text-slate-500">Wilaya: </span>
               <span className="font-semibold">{order.customerCity}</span>
             </div>
             <div>
-              <span className="text-slate-500">العنوان: </span>
+              <span className="text-slate-500">Address: </span>
               <span className="font-semibold">{order.customerAddress}</span>
             </div>
           </div>
@@ -148,10 +148,10 @@ export default async function OrderSuccessPage({
 
         <div className="flex flex-col sm:flex-row gap-3 mt-6">
           <Link href="/products" className="btn btn-primary flex-1">
-            متابعة التسوق
+            Continue shopping
           </Link>
           <Link href="/" className="btn btn-outline flex-1">
-            العودة للرئيسية
+            Back to home
           </Link>
         </div>
       </div>

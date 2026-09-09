@@ -27,9 +27,9 @@ export default async function ProductPage({
     <div className="container mx-auto px-4 py-8">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-slate-500 mb-6">
-        <Link href="/" className="hover:text-amber-600">الرئيسية</Link>
+        <Link href="/" className="hover:text-amber-600">Home</Link>
         <span>/</span>
-        <Link href="/products" className="hover:text-amber-600">المنتجات</Link>
+        <Link href="/products" className="hover:text-amber-600">Products</Link>
         <span>/</span>
         <span className="text-slate-900 font-semibold line-clamp-1">{product.name}</span>
       </div>
@@ -46,7 +46,7 @@ export default async function ProductPage({
             />
             {product.discount > 0 && (
               <span className="absolute top-4 right-4 bg-red-500 text-white text-sm font-bold px-3 py-1.5 rounded-xl shadow">
-                خصم {product.discount}%
+                {product.discount}% OFF
               </span>
             )}
           </div>
@@ -73,7 +73,7 @@ export default async function ProductPage({
         <div>
           {product.brand && (
             <div className="text-sm text-slate-500 mb-2">
-              الماركة: <span className="font-semibold text-slate-700">{product.brand}</span>
+              Brand: <span className="font-semibold text-slate-700">{product.brand}</span>
             </div>
           )}
           <h1 className="text-2xl md:text-3xl font-extrabold mb-3">
@@ -97,7 +97,7 @@ export default async function ProductPage({
                 ))}
               </div>
               <span className="text-sm text-slate-600">
-                {(product.rating / 10).toFixed(1)} ({product.reviewsCount} تقييم)
+                {(product.rating / 10).toFixed(1)} ({product.reviewsCount} reviews)
               </span>
             </div>
           )}
@@ -112,14 +112,14 @@ export default async function ProductPage({
                   {formatPrice(product.oldPrice)}
                 </span>
                 <span className="bg-red-100 text-red-600 text-sm font-bold px-2.5 py-1 rounded-lg">
-                  وفّر {formatPrice(product.oldPrice - product.price)}
+                  Save {formatPrice(product.oldPrice - product.price)}
                 </span>
               </>
             )}
           </div>
 
           <div className="mb-5">
-            <h3 className="font-bold mb-2">الوصف</h3>
+            <h3 className="font-bold mb-2">Description</h3>
             <p className="text-slate-600 leading-relaxed text-sm">
               {product.description}
             </p>
@@ -137,8 +137,8 @@ export default async function ProductPage({
               }`}
             >
               {product.stock > 0
-                ? `متوفر في المخزون (${product.stock} قطعة)`
-                : "غير متوفر حالياً"}
+                ? `In stock (${product.stock} items)`
+                : "Currently out of stock"}
             </span>
           </div>
 
@@ -147,15 +147,15 @@ export default async function ProductPage({
           <div className="grid grid-cols-3 gap-3 mt-6 pt-6 border-t border-slate-200">
             <div className="text-center">
               <div className="text-2xl mb-1">🚚</div>
-              <div className="text-xs font-semibold">شحن سريع</div>
+              <div className="text-xs font-semibold">Fast delivery</div>
             </div>
             <div className="text-center">
               <div className="text-2xl mb-1">🔄</div>
-              <div className="text-xs font-semibold">استرجاع مجاني</div>
+              <div className="text-xs font-semibold">Free returns</div>
             </div>
             <div className="text-center">
               <div className="text-2xl mb-1">🛡️</div>
-              <div className="text-xs font-semibold">ضمان سنة</div>
+              <div className="text-xs font-semibold">1-year warranty</div>
             </div>
           </div>
         </div>
@@ -165,7 +165,7 @@ export default async function ProductPage({
       {related.length > 0 && (
         <section className="mt-16">
           <h2 className="text-2xl md:text-3xl font-extrabold mb-6">
-            منتجات مشابهة
+            Related products
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {related

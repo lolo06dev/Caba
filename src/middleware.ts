@@ -1,0 +1,54 @@
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
+import { SUPABASE_KEY, SUPABASE_URL } from "@/lib/supabase/env";
+
+export async function middleware(request: NextRequest) {
+  let response = NextResponse.next({ request });
+
+  const supabase = createServerClient(
+    SUPABASE_URL,
+    SUPABASE_KEY,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          for (const { name, value } of cookiesToSet) {
+            request.cookies.set(name, value);
+          }
+          response = NextResponse.next({ request });
+          for (const { name, value, options } of cookiesToSet) {
+            response.cookies.set(name, value, options);
+          }
+        },
+      },
+    }
+  );
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { pathname } = request.nextUrl;
+
+  if (!user && pathname.startsWith("/admin") && pathname !== "/admin/login") {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/admin/login";
+    loginUrl.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  if (user && pathname === "/admin/login") {
+    const adminUrl = request.nextUrl.clone();
+    adminUrl.pathname = "/admin";
+    adminUrl.search = "";
+    return NextResponse.redirect(adminUrl);
+  }
+
+  return response;
+}
+
+export const config = {
+  matcher: ["/admin/:path*"],
+};

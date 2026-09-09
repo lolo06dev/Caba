@@ -38,7 +38,7 @@ export default async function HomePage() {
           </h2>
           <div className="designer">BY TAYAB ROUTEL</div>
           <Link href="/products" className="order-btn">
-            COMMANDÉ
+            ORDER NOW
           </Link>
         </div>
         <div className="next-drop-image">
@@ -92,8 +92,8 @@ export default async function HomePage() {
               </div>
             </div>
             <div className="service-info">
-              <h4>Livraison 58 wilayas.</h4>
-              <p>Livraison Disponible 58 wilayas avec la société de Livraison Yalidine</p>
+              <h4>Delivery to 58 wilayas.</h4>
+              <p>Delivery available to 58 wilayas with the Yalidine shipping company</p>
             </div>
           </div>
           <div className="service-item">
@@ -107,8 +107,8 @@ export default async function HomePage() {
               </div>
             </div>
             <div className="service-info">
-              <h4>Paiement A La Livraison & En Ligne</h4>
-              <p>Payer A La Livraison ou en ligne</p>
+              <h4>Cash On Delivery &amp; Online Payment</h4>
+              <p>Pay on delivery or online</p>
             </div>
           </div>
           <div className="service-item">
@@ -123,7 +123,7 @@ export default async function HomePage() {
             </div>
             <div className="service-info">
               <h4>Support.</h4>
-              <p>Support 24h/7j Pour n&apos;importe quelle Probleme (echange, retour)</p>
+              <p>24/7 support for any issue (exchange, return)</p>
             </div>
           </div>
         </div>

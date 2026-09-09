@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { useCart } from "@/lib/cart-store";
+import { formatPrice } from "@/lib/types";
 
 const CartDrawer = () => {
   const isOpen = useCart((s) => s.isOpen);
@@ -23,9 +24,7 @@ const CartDrawer = () => {
   const shipping = items.length === 0 ? 0 : subtotal > 50000 ? 0 : 5000;
   const total = subtotal + shipping;
 
-  const fmt = (n: number) =>
-    new Intl.NumberFormat("ar-EG", { minimumFractionDigits: 0 }).format(n / 100) +
-    " ج.م";
+  const fmt = formatPrice;
 
   return (
     <>
@@ -42,16 +41,15 @@ const CartDrawer = () => {
         className={`fixed top-0 left-0 h-full w-full sm:w-[420px] bg-white z-50 shadow-2xl transition-transform duration-300 flex flex-col ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
-        dir="rtl"
       >
         <div className="flex items-center justify-between p-4 border-b border-slate-200">
           <h2 className="font-bold text-lg">
-            سلة التسوق ({items.length})
+            Shopping Cart ({items.length})
           </h2>
           <button
             onClick={() => setOpen(false)}
             className="w-9 h-9 rounded-lg hover:bg-slate-100 flex items-center justify-center"
-            aria-label="إغلاق"
+            aria-label="Close"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -91,16 +89,16 @@ const CartDrawer = () => {
                   <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
                 </svg>
               </div>
-              <h3 className="font-bold text-lg mb-1">السلة فارغة</h3>
+              <h3 className="font-bold text-lg mb-1">Your cart is empty</h3>
               <p className="text-slate-500 text-sm mb-6">
-                ابدأ التسوق وأضف منتجاتك المفضلة
+                Start shopping and add your favorite products
               </p>
               <Link
                 href="/products"
                 onClick={() => setOpen(false)}
                 className="btn btn-primary"
               >
-                تصفح المنتجات
+                Browse products
               </Link>
             </div>
           ) : (
@@ -136,7 +134,7 @@ const CartDrawer = () => {
                             updateQty(item.productId, item.quantity - 1)
                           }
                           className="w-7 h-7 flex items-center justify-center hover:bg-slate-100 rounded-r-lg"
-                          aria-label="إنقاص"
+                          aria-label="Decrease quantity"
                         >
                           −
                         </button>
@@ -148,7 +146,7 @@ const CartDrawer = () => {
                             updateQty(item.productId, item.quantity + 1)
                           }
                           className="w-7 h-7 flex items-center justify-center hover:bg-slate-100 rounded-l-lg"
-                          aria-label="زيادة"
+                          aria-label="Increase quantity"
                         >
                           +
                         </button>
@@ -156,9 +154,9 @@ const CartDrawer = () => {
                       <button
                         onClick={() => remove(item.productId)}
                         className="text-red-500 hover:text-red-600 text-xs"
-                        aria-label="حذف"
+                        aria-label="Remove"
                       >
-                        🗑 حذف
+                        🗑 Remove
                       </button>
                     </div>
                   </div>
@@ -171,14 +169,14 @@ const CartDrawer = () => {
         {items.length > 0 && (
           <div className="border-t border-slate-200 p-4 space-y-3 bg-white">
             <div className="flex justify-between text-sm">
-              <span className="text-slate-600">المجموع الفرعي</span>
+              <span className="text-slate-600">Subtotal</span>
               <span className="font-semibold">{fmt(subtotal)}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-slate-600">الشحن</span>
+              <span className="text-slate-600">Shipping</span>
               <span className="font-semibold">
                 {shipping === 0 ? (
-                  <span className="text-emerald-600">مجاني</span>
+                  <span className="text-emerald-600">Free</span>
                 ) : (
                   fmt(shipping)
                 )}
@@ -186,11 +184,11 @@ const CartDrawer = () => {
             </div>
             {subtotal < 50000 && (
               <div className="text-xs text-amber-600 bg-amber-50 p-2 rounded-lg">
-                أضف {fmt(50000 - subtotal)} للحصول على شحن مجاني
+                Add {fmt(50000 - subtotal)} more to get free shipping
               </div>
             )}
             <div className="flex justify-between text-lg font-bold pt-2 border-t border-slate-200">
-              <span>الإجمالي</span>
+              <span>Total</span>
               <span className="text-amber-600">{fmt(total)}</span>
             </div>
             <Link
@@ -198,13 +196,13 @@ const CartDrawer = () => {
               onClick={() => setOpen(false)}
               className="btn btn-primary w-full"
             >
-              إتمام الطلب
+              Checkout
             </Link>
             <button
               onClick={() => setOpen(false)}
               className="btn btn-outline w-full"
             >
-              متابعة التسوق
+              Continue shopping
             </button>
           </div>
         )}

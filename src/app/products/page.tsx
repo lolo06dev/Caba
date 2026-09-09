@@ -40,19 +40,19 @@ export default async function ProductsPage({
   }
 
   const title = search
-    ? `نتائج البحث عن "${search}"`
+    ? `Search results for "${search}"`
     : filter === "new"
-    ? "وصل حديثاً"
+    ? "New arrivals"
     : filter === "deals"
-    ? "العروض والتخفيضات"
+    ? "Deals & discounts"
     : filter === "featured"
-    ? "المنتجات المميزة"
-    : "كل المنتجات";
+    ? "Featured products"
+    : "All products";
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
-        <Link href="/" className="hover:text-amber-600">الرئيسية</Link>
+        <Link href="/" className="hover:text-amber-600">Home</Link>
         <span>/</span>
         <span className="text-slate-900 font-semibold">{title}</span>
       </div>
@@ -61,7 +61,7 @@ export default async function ProductsPage({
         <div>
           <h1 className="text-3xl md:text-4xl font-extrabold mb-1">{title}</h1>
           <p className="text-slate-500 text-sm">
-            {products.length} منتج
+            {products.length} products
           </p>
         </div>
 
@@ -69,19 +69,19 @@ export default async function ProductsPage({
         <form className="flex items-center gap-2">
           <input type="hidden" name="search" value={search ?? ""} />
           {filter && <input type="hidden" name="filter" value={filter} />}
-          <label className="text-sm text-slate-600">ترتيب:</label>
+          <label className="text-sm text-slate-600">Sort by:</label>
           <select
             name="sort"
             defaultValue={sort}
             className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
           >
-            <option value="newest">الأحدث</option>
-            <option value="price-asc">السعر: من الأقل</option>
-            <option value="price-desc">السعر: من الأعلى</option>
-            <option value="rating">الأعلى تقييماً</option>
+            <option value="newest">Newest</option>
+            <option value="price-asc">Price: low to high</option>
+            <option value="price-desc">Price: high to low</option>
+            <option value="rating">Top rated</option>
           </select>
           <button type="submit" className="btn btn-dark text-sm">
-            تطبيق
+            Apply
           </button>
         </form>
       </div>
@@ -89,10 +89,10 @@ export default async function ProductsPage({
       {products.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-2xl border border-slate-200">
           <div className="text-6xl mb-3">📦</div>
-          <h3 className="font-bold text-xl mb-1">لا توجد منتجات</h3>
-          <p className="text-slate-500 mb-5">جرّب البحث بكلمات أخرى</p>
+          <h3 className="font-bold text-xl mb-1">No products found</h3>
+          <p className="text-slate-500 mb-5">Try searching with different keywords</p>
           <Link href="/products" className="btn btn-primary">
-            كل المنتجات
+            All products
           </Link>
         </div>
       ) : (

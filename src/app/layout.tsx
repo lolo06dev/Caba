@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
+import BottomNavigation from "@/components/BottomNavigation";
 import ScrollToTop from "@/components/ScrollToTop";
 
 export const metadata: Metadata = {
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <main>{children}</main>
         <Footer />
         <CartDrawer />
+        <BottomNavigation />
         <ScrollToTop />
       </body>
     </html>

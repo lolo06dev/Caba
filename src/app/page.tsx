@@ -134,9 +134,7 @@ export default async function HomePage() {
         <StorySlider />
         <div className="brand-story-text">
           <p>
-            CABA PRODUCT IS INSPIRED BY THE PEOPLE WHO CHOOSE THEIR OWN PATH INSTEAD OF FOLLOWING TRENDS.
-            EVERY PIECE IS DESIGNED WITH PURPOSE, BLENDING CLEAN AESTHETICS, STREET CULTURE, AND INDIVIDUALITY.
-            THIS BRAND IS FOR THOSE WHO BELIEVE THAT STYLE IS A WAY TO EXPRESS WHO THEY ARE, NOT JUST WHAT THEY WEAR.
+            The CABA product is inspired by people choosing their own path rather than following trends. The store is designed for the purpose of obtaining original European products and for people who cannot travel, as it combines clean aesthetics with the culture of countries. This brand is for those who think that these original products are what they lack wherever they are.
           </p>
         </div>
       </section>

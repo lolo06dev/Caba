@@ -9,7 +9,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 export const metadata: Metadata = {
   title: "Caba Product - Streetwear Brand by Tayab Routel",
   description:
-    "Caba Product is inspired by the people who choose their own path. Streetwear brand blending clean aesthetics, street culture, and individuality.",
+    "Caba Product is inspired by the people who choose their own path.",
   icons: {
     icon: "/icon.png",
   },

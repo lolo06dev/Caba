@@ -6,11 +6,11 @@ import { addProduct, signOut } from "./actions";
 export default function AdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [preview, setPreview] = useState<string | null>(null);
+  const [previews, setPreviews] = useState<string[]>([]);
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    setPreview(file ? URL.createObjectURL(file) : null);
+    const files = Array.from(event.target.files ?? []);
+    setPreviews(files.map((file) => URL.createObjectURL(file)));
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -21,12 +21,16 @@ export default function AdminDashboard() {
     const formData = new FormData(event.currentTarget);
 
     try {
-      await addProduct(formData);
-      setMessage("Product added successfully!");
-      (event.target as HTMLFormElement).reset();
-      setPreview(null);
+      const result = await addProduct(formData);
+      if (result.success) {
+        setMessage("Product added successfully!");
+        (event.target as HTMLFormElement).reset();
+        setPreviews([]);
+      } else {
+        setMessage("Error: " + result.error);
+      }
     } catch (error: any) {
-      setMessage("Error: " + (error.message || "Failed to add the product"));
+      setMessage("Error: " + (error?.message || "Failed to add the product"));
     } finally {
       setLoading(false);
     }
@@ -114,25 +118,31 @@ export default function AdminDashboard() {
         </div>
 
         <div>
-          <label style={{ display: "block", marginBottom: "5px", fontWeight: 500 }}>Product image:</label>
+          <label style={{ display: "block", marginBottom: "5px", fontWeight: 500 }}>Product images:</label>
           <input 
             type="file" 
-            name="image" 
+            name="images" 
             accept="image/*"
+            multiple
             required 
             onChange={handleFileChange}
             style={{ width: "100%", padding: "10px", border: "1px solid #ccc", borderRadius: "4px" }} 
           />
           <small style={{ color: "#666", display: "block", marginTop: "5px" }}>
-            Upload an image from your computer (JPG or PNG, up to 5 MB).
+            Upload up to 8 images from your computer (JPG or PNG, up to 5 MB each). The first one is the main image.
           </small>
-          {preview && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={preview}
-              alt="Selected product preview"
-              style={{ marginTop: "10px", maxWidth: "180px", borderRadius: "4px", border: "1px solid #eee" }}
-            />
+          {previews.length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "10px" }}>
+              {previews.map((preview, index) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={preview}
+                  src={preview}
+                  alt={`Selected product preview ${index + 1}`}
+                  style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "4px", border: index === 0 ? "2px solid #000" : "1px solid #eee" }}
+                />
+              ))}
+            </div>
           )}
         </div>
 

@@ -68,8 +68,14 @@ export const orders = pgTable("orders", {
   customerEmail: varchar("customer_email", { length: 200 }),
   customerAddress: text("customer_address").notNull(),
   customerCity: varchar("customer_city", { length: 120 }).notNull(),
+  customerCommune: varchar("customer_commune", { length: 120 }),
   notes: text("notes"),
   status: orderStatusEnum("status").notNull().default("pending"),
+  // Payment: "cod" (cash on delivery) or "chargily" (online card payment)
+  paymentMethod: varchar("payment_method", { length: 20 }).notNull().default("cod"),
+  // Payment status: "unpaid" | "paid" | "failed" (updated by Chargily webhook)
+  paymentStatus: varchar("payment_status", { length: 20 }).notNull().default("unpaid"),
+  chargilyCheckoutId: varchar("chargily_checkout_id", { length: 120 }),
   subtotal: integer("subtotal").notNull(),
   shipping: integer("shipping").notNull(),
   total: integer("total").notNull(),

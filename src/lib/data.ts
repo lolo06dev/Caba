@@ -82,9 +82,12 @@ export async function createOrder(input: {
   customerEmail?: string;
   customerAddress: string;
   customerCity: string;
+  customerCommune?: string;
   notes?: string;
+  paymentMethod?: "cod" | "chargily";
   items: { productId: number; name: string; image: string; price: number; quantity: number; slug: string }[];
 }) {
+  await ensureSeeded();
   const subtotal = input.items.reduce(
     (s, i) => s + i.price * i.quantity,
     0
@@ -100,7 +103,10 @@ export async function createOrder(input: {
       customerEmail: input.customerEmail ?? null,
       customerAddress: input.customerAddress,
       customerCity: input.customerCity,
+      customerCommune: input.customerCommune ?? null,
       notes: input.notes ?? null,
+      paymentMethod: input.paymentMethod ?? "cod",
+      paymentStatus: "unpaid",
       subtotal,
       shipping,
       total,
@@ -122,6 +128,36 @@ export async function createOrder(input: {
   }
 
   return order;
+}
+
+export async function setOrderChargilyCheckout(
+  orderId: number,
+  checkoutId: string
+) {
+  await db
+    .update(orders)
+    .set({ chargilyCheckoutId: checkoutId })
+    .where(eq(orders.id, orderId));
+}
+
+export async function applyChargilyEvent(input: {
+  checkoutId?: string | null;
+  orderId?: number | null;
+  paymentStatus: "paid" | "failed" | "unpaid";
+}): Promise<void> {
+  if (input.orderId) {
+    await db
+      .update(orders)
+      .set({ paymentStatus: input.paymentStatus })
+      .where(eq(orders.id, input.orderId));
+    return;
+  }
+  if (input.checkoutId) {
+    await db
+      .update(orders)
+      .set({ paymentStatus: input.paymentStatus })
+      .where(eq(orders.chargilyCheckoutId, input.checkoutId));
+  }
 }
 
 export async function getOrderById(id: number) {

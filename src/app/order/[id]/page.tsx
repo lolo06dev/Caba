@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getOrderById, getOrderItems } from "@/lib/data";
+import { isChargilyConfigured } from "@/lib/chargily";
 import { formatPrice } from "@/lib/types";
+import PayNowButton from "@/components/PayNowButton";
 
 export const dynamic = "force-dynamic";
 
@@ -21,17 +23,35 @@ const statusColor: Record<string, string> = {
   cancelled: "bg-red-100 text-red-700",
 };
 
+const paymentStatusLabel: Record<string, string> = {
+  unpaid: "Unpaid",
+  paid: "Paid",
+  failed: "Payment failed",
+};
+
+const paymentStatusColor: Record<string, string> = {
+  unpaid: "bg-slate-100 text-slate-700",
+  paid: "bg-emerald-100 text-emerald-700",
+  failed: "bg-red-100 text-red-700",
+};
+
 export default async function OrderSuccessPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ payment?: string }>;
 }) {
   const { id } = await params;
+  const { payment } = await searchParams;
   const orderId = Number(id);
   if (!Number.isFinite(orderId)) notFound();
   const order = await getOrderById(orderId);
   if (!order) notFound();
   const items = await getOrderItems(orderId);
+
+  const isOnlineOrder = order.paymentMethod === "chargily";
+  const canPayNow = isOnlineOrder && order.paymentStatus !== "paid" && isChargilyConfigured();
 
   return (
     <div className="container mx-auto px-4 py-10">
@@ -63,7 +83,7 @@ export default async function OrderSuccessPage({
             Order number: <span className="font-bold text-slate-900">#{order.id}</span>
           </p>
 
-          <div className="inline-block">
+          <div className="inline-flex flex-wrap items-center justify-center gap-2">
             <span
               className={`text-sm font-bold px-4 py-1.5 rounded-full ${
                 statusColor[order.status] ?? "bg-slate-100 text-slate-700"
@@ -71,8 +91,43 @@ export default async function OrderSuccessPage({
             >
               {statusLabel[order.status] ?? order.status}
             </span>
+            <span
+              className={`text-sm font-bold px-4 py-1.5 rounded-full ${
+                order.paymentStatus === "paid"
+                  ? paymentStatusColor.paid
+                  : isOnlineOrder
+                  ? paymentStatusColor[order.paymentStatus] ?? paymentStatusColor.unpaid
+                  : "bg-slate-100 text-slate-700"
+              }`}
+            >
+              {order.paymentStatus === "paid"
+                ? "Paid"
+                : isOnlineOrder
+                ? paymentStatusLabel[order.paymentStatus] ?? "Unpaid"
+                : "Due on delivery"}
+            </span>
           </div>
         </div>
+
+        {/* Payment banners after redirect from Chargily */}
+        {payment === "success" && (
+          <div className="mt-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-2xl text-sm">
+            Thank you for your payment! We are confirming it now — your order
+            status will update to <strong>Paid</strong> within a few moments.
+          </div>
+        )}
+        {payment === "failed" && (
+          <div className="mt-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl text-sm">
+            The payment was canceled or failed. You can retry using the button
+            below.
+          </div>
+        )}
+        {payment === "error" && (
+          <div className="mt-6 p-4 bg-amber-50 border border-amber-200 text-amber-700 rounded-2xl text-sm">
+            We could not start the online payment. Your order is saved — you can
+            retry using the button below or contact us.
+          </div>
+        )}
 
         {/* Order details */}
         <div className="bg-white rounded-3xl p-6 border border-slate-200 mt-6">
@@ -123,6 +178,18 @@ export default async function OrderSuccessPage({
           </div>
         </div>
 
+        {/* Pay now (online payment orders) */}
+        {canPayNow && (
+          <div className="bg-white rounded-3xl p-6 border border-slate-200 mt-6">
+            <h2 className="text-xl font-bold mb-2">Online payment</h2>
+            <p className="text-sm text-slate-500 mb-4">
+              This order is not paid yet. Pay securely with your EDAHABIA or CIB
+              card — powered by Chargily.
+            </p>
+            <PayNowButton orderId={order.id} />
+          </div>
+        )}
+
         {/* Customer info */}
         <div className="bg-white rounded-3xl p-6 border border-slate-200 mt-6">
           <h2 className="text-xl font-bold mb-4">Delivery address</h2>
@@ -139,9 +206,21 @@ export default async function OrderSuccessPage({
               <span className="text-slate-500">Wilaya: </span>
               <span className="font-semibold">{order.customerCity}</span>
             </div>
+            {order.customerCommune && (
+              <div>
+                <span className="text-slate-500">Commune: </span>
+                <span className="font-semibold">{order.customerCommune}</span>
+              </div>
+            )}
             <div>
               <span className="text-slate-500">Address: </span>
               <span className="font-semibold">{order.customerAddress}</span>
+            </div>
+            <div>
+              <span className="text-slate-500">Payment: </span>
+              <span className="font-semibold">
+                {isOnlineOrder ? "Online (EDAHABIA / CIB)" : "Cash on delivery"}
+              </span>
             </div>
           </div>
         </div>

@@ -50,6 +50,7 @@ export type Order = {
   customerEmail: string | null;
   customerAddress: string;
   customerCity: string;
+  customerCommune: string | null;
   notes: string | null;
   status:
     | "pending"
@@ -57,6 +58,9 @@ export type Order = {
     | "shipped"
     | "delivered"
     | "cancelled";
+  paymentMethod: string; // "cod" | "chargily"
+  paymentStatus: string; // "unpaid" | "paid" | "failed"
+  chargilyCheckoutId: string | null;
   subtotal: number;
   shipping: number;
   total: number;

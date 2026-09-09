@@ -47,8 +47,12 @@ CREATE TABLE IF NOT EXISTS "orders" (
   "customer_email" varchar(200),
   "customer_address" text NOT NULL,
   "customer_city" varchar(120) NOT NULL,
+  "customer_commune" varchar(120),
   "notes" text,
   "status" "order_status" DEFAULT 'pending' NOT NULL,
+  "payment_method" varchar(20) DEFAULT 'cod' NOT NULL,
+  "payment_status" varchar(20) DEFAULT 'unpaid' NOT NULL,
+  "chargily_checkout_id" varchar(120),
   "subtotal" integer NOT NULL,
   "shipping" integer NOT NULL,
   "total" integer NOT NULL,
@@ -110,3 +114,14 @@ DO $$ BEGIN
     ON storage.objects FOR DELETE TO authenticated
     USING (bucket_id = 'product-images');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- =====================================================================
+-- Migration for EXISTING databases (safe to re-run, the app also runs
+-- these automatically on startup).
+-- Adds the commune (baladiya) field and the online payment fields
+-- (Chargily) to the orders table.
+-- =====================================================================
+ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "customer_commune" varchar(120);
+ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "payment_method" varchar(20) NOT NULL DEFAULT 'cod';
+ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "payment_status" varchar(20) NOT NULL DEFAULT 'unpaid';
+ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "chargily_checkout_id" varchar(120);

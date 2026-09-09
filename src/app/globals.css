@@ -756,3 +756,29 @@ body {
     bottom: calc(84px + env(safe-area-inset-bottom));
   }
 }
+
+/* Footer contact links (social media) */
+.footer-contact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #888;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-contact-link:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.footer-contact-link svg {
+  flex-shrink: 0;
+  transition: transform 0.2s ease, fill 0.2s ease;
+}
+
+.footer-contact-link:hover svg {
+  transform: scale(1.15);
+  fill: #1877f2;
+}
+

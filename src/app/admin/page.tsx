@@ -1,11 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { addProduct } from "./actions";
+import { addProduct, signOut } from "./actions";
 
 export default function AdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [preview, setPreview] = useState<string | null>(null);
+
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    setPreview(file ? URL.createObjectURL(file) : null);
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -18,6 +24,7 @@ export default function AdminDashboard() {
       await addProduct(formData);
       setMessage("Product added successfully!");
       (event.target as HTMLFormElement).reset();
+      setPreview(null);
     } catch (error: any) {
       setMessage("Error: " + (error.message || "Failed to add the product"));
     } finally {
@@ -27,7 +34,24 @@ export default function AdminDashboard() {
 
   return (
     <div style={{ maxWidth: "600px", margin: "40px auto", padding: "20px" }}>
-      <h1 style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "20px" }}>Product dashboard</h1>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
+        <h1 style={{ fontSize: "24px", fontWeight: "bold" }}>Product dashboard</h1>
+        <form action={signOut}>
+          <button
+            type="submit"
+            style={{
+              padding: "8px 14px",
+              backgroundColor: "#fff",
+              color: "#000",
+              border: "1px solid #ccc",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            Sign out
+          </button>
+        </form>
+      </div>
       
       {message && (
         <div style={{ 
@@ -90,17 +114,26 @@ export default function AdminDashboard() {
         </div>
 
         <div>
-          <label style={{ display: "block", marginBottom: "5px", fontWeight: 500 }}>Image URL:</label>
+          <label style={{ display: "block", marginBottom: "5px", fontWeight: 500 }}>Product image:</label>
           <input 
-            type="url" 
+            type="file" 
             name="image" 
+            accept="image/*"
             required 
+            onChange={handleFileChange}
             style={{ width: "100%", padding: "10px", border: "1px solid #ccc", borderRadius: "4px" }} 
-            placeholder="https://images.unsplash.com/photo-..."
           />
           <small style={{ color: "#666", display: "block", marginTop: "5px" }}>
-            Paste a direct image link for the product here.
+            Upload an image from your computer (JPG or PNG, up to 5 MB).
           </small>
+          {preview && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={preview}
+              alt="Selected product preview"
+              style={{ marginTop: "10px", maxWidth: "180px", borderRadius: "4px", border: "1px solid #eee" }}
+            />
+          )}
         </div>
 
         <button 

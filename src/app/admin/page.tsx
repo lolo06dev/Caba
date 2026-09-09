@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { addProduct, signOut } from "./actions";
 
 type Category = {
@@ -56,21 +57,39 @@ export default function AdminDashboard() {
     <div style={{ maxWidth: "600px", margin: "40px auto", padding: "20px" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
         <h1 style={{ fontSize: "24px", fontWeight: "bold" }}>Product dashboard</h1>
-        <form action={signOut}>
-          <button
-            type="submit"
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <Link
+            href="/admin/products"
             style={{
               padding: "8px 14px",
-              backgroundColor: "#fff",
-              color: "#000",
-              border: "1px solid #ccc",
+              backgroundColor: "#000",
+              color: "#fff",
+              border: "1px solid #000",
               borderRadius: "4px",
               cursor: "pointer",
+              fontWeight: "bold",
+              textDecoration: "none",
+              display: "inline-block",
             }}
           >
-            Sign out
-          </button>
-        </form>
+            Manage products
+          </Link>
+          <form action={signOut}>
+            <button
+              type="submit"
+              style={{
+                padding: "8px 14px",
+                backgroundColor: "#fff",
+                color: "#000",
+                border: "1px solid #ccc",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              Sign out
+            </button>
+          </form>
+        </div>
       </div>
       
       {message && (
